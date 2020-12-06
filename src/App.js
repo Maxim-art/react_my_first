@@ -1,28 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 // import logo from './logo.svg';
 // import './App.css';
+import Context from './context';
 import TodoList from './Todo/TodoList';
 import AddTodo from './Todo/AddTodo';
-import Context from './context';
+import Loader from './Loader';
 
 function App() {
-  const [todos, setTodos] = React.useState([
-    {
-      id: 1,
-      complited: false,
-      title: 'my title1',
-    },
-    {
-      id: 2,
-      complited: false,
-      title: 'my title2',
-    },
-    {
-      id: 3,
-      complited: false,
-      title: 'my title3',
-    },
-  ]);
+  const [todos, setTodos] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/todos?_start=0&_limit=5')
+      .then((response) => response.json())
+      .then((todos) => {
+        setTimeout(() => {
+          setTodos(todos);
+          setLoading(false);
+        }, 3000);
+      });
+  }, []);
 
   function toggleTodo(id) {
     setTodos(
@@ -59,9 +56,11 @@ function App() {
 
         <AddTodo onCreate={addTodo} />
 
+        {loading && <Loader />}
+
         {todos.length ? (
           <TodoList todos={todos} onToggle={toggleTodo} />
-        ) : (
+        ) : loading ? null : (
           <p>Empty</p>
         )}
       </div>
